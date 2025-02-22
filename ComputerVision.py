@@ -3,7 +3,7 @@ import openai
 from PIL import Image
 from transformers import pipeline
 
-# Set your OpenAI API key
+# Set your OpenAI API key 
 openai.api_key = "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"
 
 # Initialize local object detection model
