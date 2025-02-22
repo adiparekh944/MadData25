@@ -6,8 +6,8 @@ function App() {
   const contentRef = useRef<HTMLDivElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-  const [data, setData] = useState<any>(null); // <-- This is where the "data" state is declared.
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const handleScroll = () => {
     contentRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -16,10 +16,16 @@ function App() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     setSelectedFiles(prev => [...prev, ...files]);
-
-    // Create preview URLs
-    const newPreviewUrls = files.map(file => URL.createObjectURL(file));
-    setPreviewUrls(prev => [...prev, ...newPreviewUrls]);
+  
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        if (reader.result) {
+          setPreviewUrls(prev => [...prev, reader.result as string]);
+        }
+      };
+    });
   };
 
   const removeImage = (index: number) => {
@@ -28,46 +34,51 @@ function App() {
     setPreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Placeholder upload function
-  const handleUpload = async () => {
+
+  const handleSendData = async () => {
     if (selectedFiles.length === 0) {
-      alert("No files selected for upload.");
+      alert("No files selected!");
       return;
     }
-
-    console.log("Uploading files...", selectedFiles);
-
-    // Hypothetical API call (replace this with actual backend logic)
-    try {
-      // Example: Sending files to a backend endpoint
-      const formData = new FormData();
-      selectedFiles.forEach(file => formData.append("images", file));
-
-      // Fake API endpoint
-      await fetch("https://your-backend-api.com/upload", {
-        method: "POST",
-        body: formData,
+  
+    setUploading(true);
+  
+    const base64Promises = selectedFiles.map(file => {
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = error => reject(error);
       });
-
-      alert("Files uploaded successfully!");
+    });
+  
+    try {
+      const base64Images = await Promise.all(base64Promises);
+  
+      const requestBody = JSON.stringify({
+        name: "User's Upload", // Modify as needed
+        value: base64Images
+      });
+  
+      const response = await fetch("http://10.141.85.222:5000/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: requestBody,
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to upload images");
+      }
+  
+      const result = await response.json();
+      alert("Images uploaded successfully!");
+      console.log(result);
     } catch (error) {
       console.error("Upload failed:", error);
-      alert("Upload failed. Please try again.");
+      alert("Failed to upload images.");
     }
-  };
-
-  const handleFetchData = async () => {
-    setLoading(true);
-    try {
-      // Replace the URL with your backend GET endpoint
-      const response = await fetch('http://10.141.85.222:5000/api/data');
-      const data = await response.json();
-      setFetchedData(data);
-    } catch (error) {
-      console.error('Fetch failed:', error);
-      setFetchedData({ error: 'Failed to fetch data.' });
-    }
-    setLoading(false);
+  
+    setUploading(false);
   };
 
   return (
@@ -77,29 +88,17 @@ function App() {
         onClick={handleScroll}
       />}
 
-      {/* Content Section */}
       <section ref={contentRef} className="min-h-screen py-20 px-4 bg-black">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
-          {/* Description Card */}
           <div className="bg-cardColor p-8 rounded-2xl">
             <h2 className="text-3xl text-white font-bold mb-6">The Process</h2>
-            <p className="text-gray-300 leading-relaxed">
-              
-            </p>
             <ol className="mt-8 space-y-4 list-decimal list-inside text-gray-300">
-              <li>
-                <strong className="text-white">Scan:</strong>  Upload images of your belongings.
-              </li>
-              <li>
-                <strong className="text-white">Value:</strong> Our model will analyze the image and give you pricing of each product in the picture
-              </li>
-              <li>
-                <strong className="text-white">Protect:</strong> Using this pricing, you can easily get a valuation of your belongings for insurance claims.
-              </li>
+              <li><strong className="text-white">Scan:</strong> Upload images of your belongings.</li>
+              <li><strong className="text-white">Value:</strong> Our model will analyze the image and give you pricing of each product in the picture.</li>
+              <li><strong className="text-white">Protect:</strong> Using this pricing, you can easily get a valuation of your belongings for insurance claims.</li>
             </ol>
           </div>
 
-          {/* Upload Card */}
           <div className="bg-cardColor backdrop-blur-lg p-8 rounded-2xl">
             <h2 className="text-3xl text-white font-bold mb-6">Upload Images</h2>
             <div className="relative">
@@ -120,25 +119,6 @@ function App() {
               </label>
             </div>
 
-          {/* Fetch Data Card */}
-          <div className="bg-cardColor backdrop-blur-lg p-8 rounded-2xl">
-            <h2 className="text-3xl text-white font-bold mb-6">Fetch Data</h2>
-            <p className="text-gray-300 mb-4">
-              Click the button below to fetch data from the backend.
-            </p>
-            <button
-              onClick={handleFetchData}
-              className="w-full bg-accent hover:bg-accentHover text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-            >
-              {loading ? 'Loading...' : 'Fetch Data'}
-            </button>
-            {fetchedData && (
-              <div className="mt-6 p-4 bg-gray-800 rounded-lg text-gray-100">
-                <pre>{JSON.stringify(fetchedData, null, 2)}</pre>
-              </div>
-            )}
-          </div>
-            {/* Preview Section */}
             {previewUrls.length > 0 && (
               <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4">
                 {previewUrls.map((url, index) => (
@@ -159,12 +139,11 @@ function App() {
               </div>
             )}
 
-            {/* Upload to Backend Button */}
             <button
-              onClick={handleUpload}
-              className="mt-6 w-full bg-accent hover:bg-accentHover text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+              onClick={handleSendData}
+              className="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
             >
-              Upload to Backend
+              {uploading ? "Uploading..." : "Send Data"}
             </button>
           </div>
         </div>
