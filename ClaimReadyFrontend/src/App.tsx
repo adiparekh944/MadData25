@@ -66,13 +66,9 @@ function App() {
         body: requestBody,
       });
   
-      if (!response.ok) {
-        throw new Error("Failed to upload images");
-      }
   
       const result = await response.json();
-      alert("Images uploaded successfully!");
-      console.log(result);
+      alert(JSON.stringify(result, null, 2));
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Failed to upload images.");
