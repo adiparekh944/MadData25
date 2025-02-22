@@ -66,23 +66,19 @@ function App() {
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
           {/* Description Card */}
           <div className="bg-cardColor p-8 rounded-2xl">
-            <h2 className="text-3xl text-white font-bold mb-6">Our Process</h2>
+            <h2 className="text-3xl text-white font-bold mb-6">The Process</h2>
             <p className="text-gray-300 leading-relaxed">
-              We follow a simple yet effective approach to ensure the best experience for our users. 
-              Our three-step process makes it easy to get started quickly and securely.
+              
             </p>
             <ol className="mt-8 space-y-4 list-decimal list-inside text-gray-300">
               <li>
-                <strong className="text-white">Scan</strong> – Quickly analyze and gather information 
-                with our advanced scanning tools.
+                <strong className="text-white">Scan:</strong>  Upload images of your belongings.
               </li>
               <li>
-                <strong className="text-white">Value</strong> – Assess and extract meaningful insights 
-                to enhance your experience.
+                <strong className="text-white">Value:</strong> Our model will analyze the image and give you pricing of each product in the picture
               </li>
               <li>
-                <strong className="text-white">Protect</strong> – Keep your data and content secure 
-                with industry-leading safeguards.
+                <strong className="text-white">Protect:</strong> Using this pricing, you can easily get a valuation of your belongings for insurance claims.
               </li>
             </ol>
           </div>
