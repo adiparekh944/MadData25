@@ -4,7 +4,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        cardColor: '#950000', //darker accent color (for hovering
+        cardColor: '#950000',
+        buttonColor: '#E8EEF2',
+        buttonHover: '#A7A7A7', //darker accent color (for hovering
       },
       
     },

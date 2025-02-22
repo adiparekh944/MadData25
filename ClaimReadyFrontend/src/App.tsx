@@ -8,6 +8,7 @@ function App() {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [address, setAddress] = useState(''); // New state for address
 
   const handleScroll = () => {
     contentRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -34,7 +35,6 @@ function App() {
     setPreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
 
-
   const handleSendData = async () => {
     if (selectedFiles.length === 0) {
       alert("No files selected!");
@@ -43,6 +43,7 @@ function App() {
   
     setUploading(true);
   
+    // Convert image files to base64 strings
     const base64Promises = selectedFiles.map(file => {
       return new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -55,23 +56,37 @@ function App() {
     try {
       const base64Images = await Promise.all(base64Promises);
   
-      const requestBody = JSON.stringify({
-        name: "User's Upload", // Modify as needed
+      // Prepare and send the images payload
+      const imageRequestBody = JSON.stringify({
+        name: "User's Upload",
         value: base64Images
       });
   
-      const response = await fetch("http://10.141.85.222:5000/api/upload", {
+      const imageResponse = await fetch("http://10.141.85.222:5000/api/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: requestBody,
+        body: imageRequestBody,
       });
   
+      const imageResult = await imageResponse.json();
+
+      // If an address is provided, send it to a different endpoint
+      let addressResult = null;
+      if (address.trim()) {
+        const addressRequestBody = JSON.stringify({ address });
+        const addressResponse = await fetch("http://10.141.85.222:5000/api/address", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: addressRequestBody,
+        });
+        addressResult = await addressResponse.json();
+      }
   
-      const result = await response.json();
-      alert(JSON.stringify(result, null, 2));
+      // Show both results together
+      alert(JSON.stringify({ imageResult, addressResult }, null, 2));
     } catch (error) {
       console.error("Upload failed:", error);
-      alert("Failed to upload images.");
+      alert("Failed to upload data.");
     }
   
     setUploading(false);
@@ -79,10 +94,10 @@ function App() {
 
   return (
     <div className="w-screen h-screen bg-black">
-      {<Spline
+      <Spline
         scene="https://prod.spline.design/VMVgTOkbPJRNTowR/scene.splinecode"
         onClick={handleScroll}
-      />}
+      />
 
       <section ref={contentRef} className="min-h-screen py-20 px-4 bg-black">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
@@ -97,6 +112,18 @@ function App() {
 
           <div className="bg-cardColor backdrop-blur-lg p-8 rounded-2xl">
             <h2 className="text-3xl text-white font-bold mb-6">Upload Images</h2>
+
+            {/* Address input field placed beneath the title and above the upload area */}
+            <div className="mb-4">
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter your address"
+                className="w-full p-2 rounded-lg border border-gray-400 focus:outline-none"
+              />
+            </div>
+
             <div className="relative">
               <input
                 type="file"
@@ -137,7 +164,7 @@ function App() {
 
             <button
               onClick={handleSendData}
-              className="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+              className="w-full mt-4 bg-buttonColor text-black font-semibold py-2 px-4 rounded-lg"
             >
               {uploading ? "Uploading..." : "Send Data"}
             </button>
