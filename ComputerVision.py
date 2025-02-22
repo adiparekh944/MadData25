@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import openai
 from PIL import Image
 from transformers import pipeline
@@ -10,6 +11,17 @@ object_detector = pipeline("object-detection", model="facebook/detr-resnet-50")
 # Open and prepare the image
 image_path = "applepic2.jpg"
 image = Image.open(image_path).convert("RGB")
+=======
+import requests
+
+url = "https://www.searchapi.io/api/v1/search"
+params = {
+  "engine": "google_lens",
+  "search_type": "products",
+  "url": "https://i.imgur.com/1cUDBPO.jpeg",
+  "api_key": "TW4jfuXGPnQq34cT32WBVKCv"
+}
+>>>>>>> Stashed changes
 
 # Detect objects
 detections = object_detector(image)
