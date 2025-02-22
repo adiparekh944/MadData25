@@ -2,8 +2,8 @@ import openai
 from PIL import Image
 from transformers import pipeline
 
-# Set your OpenAI API key (Use environment variables instead for security)
 openai_client = openai.OpenAI(api_key="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")
+
 # Initialize local object detection model
 object_detector = pipeline("object-detection", model="facebook/detr-resnet-50")
 
