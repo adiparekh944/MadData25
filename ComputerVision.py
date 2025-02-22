@@ -9,7 +9,7 @@ object_detector = pipeline("object-detection", model="facebook/detr-resnet-50")
 
 # Open and prepare the image
 image_path = "applepic2.jpg"
-image = Image.open(image_path).convert("RGB")
+image = Image.open(image_path).convert("RGB") 
 
 # Detect objects
 detections = object_detector(image)
