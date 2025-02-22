@@ -6,6 +6,8 @@ function App() {
   const contentRef = useRef<HTMLDivElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [data, setData] = useState<any>(null); // <-- This is where the "data" state is declared.
+  const [loading, setLoading] = useState(false);
 
   const handleScroll = () => {
     contentRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -52,6 +54,20 @@ function App() {
       console.error("Upload failed:", error);
       alert("Upload failed. Please try again.");
     }
+  };
+
+  const handleFetchData = async () => {
+    setLoading(true);
+    try {
+      // Replace the URL with your backend GET endpoint
+      const response = await fetch('http://10.141.85.222:5000/api/data');
+      const data = await response.json();
+      setFetchedData(data);
+    } catch (error) {
+      console.error('Fetch failed:', error);
+      setFetchedData({ error: 'Failed to fetch data.' });
+    }
+    setLoading(false);
   };
 
   return (
@@ -104,6 +120,24 @@ function App() {
               </label>
             </div>
 
+          {/* Fetch Data Card */}
+          <div className="bg-cardColor backdrop-blur-lg p-8 rounded-2xl">
+            <h2 className="text-3xl text-white font-bold mb-6">Fetch Data</h2>
+            <p className="text-gray-300 mb-4">
+              Click the button below to fetch data from the backend.
+            </p>
+            <button
+              onClick={handleFetchData}
+              className="w-full bg-accent hover:bg-accentHover text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+            >
+              {loading ? 'Loading...' : 'Fetch Data'}
+            </button>
+            {fetchedData && (
+              <div className="mt-6 p-4 bg-gray-800 rounded-lg text-gray-100">
+                <pre>{JSON.stringify(fetchedData, null, 2)}</pre>
+              </div>
+            )}
+          </div>
             {/* Preview Section */}
             {previewUrls.length > 0 && (
               <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4">
