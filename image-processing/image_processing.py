@@ -61,20 +61,20 @@ def process_detections(image, detections, base_name: str):
     """
     detected_items = []
     for i, box in enumerate(detections):
-        print("1")
+
         x1, y1, x2, y2 = box.xyxy[0]
         x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
         cropped = image[y1:y2, x1:x2]
-        print("2")
+
         # Save cropped image temporarily
         crop_filename = secure_filename(f"{base_name}_{i}.jpg")
         crop_path = os.path.join(TEMP_FOLDER, crop_filename)
         cv2.imwrite(crop_path, cropped)
-        print("3")
+        
         # Upload cropped image to Imgur
         image_url = upload_to_imgur(crop_path)
         if not image_url:
-            print("bababoeey")
+
             continue
 
         # Query search API (Google Lens engine) for product details
@@ -116,11 +116,6 @@ def process_detections(image, detections, base_name: str):
     return detected_items
 
 def process_image(base64_image: str, base_name: str):
-    """
-    Given a base64 image string and a base name, decode the image,
-    run YOLO object detection, process the detections, and return
-    a list of detected items with product details.
-    """
     image = decode_base64_image(base64_image)
     detections = detect_objects(image)
     detected_items = process_detections(image, detections, base_name)

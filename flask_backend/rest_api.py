@@ -113,7 +113,6 @@ def handle_single_data(key):
         return jsonify({"status": "success", "message": "Record deleted"})
 
 # Endpoint to handle a list of base64 image uploads
-# New Endpoint: Process uploaded base64 image and return detected product info
 @app.route('/api/upload', methods=['POST'])
 def process_image_upload():
     req_data = request.get_json()
@@ -135,6 +134,7 @@ def process_image_upload():
 
     return jsonify({"status": "success", "detected_items": detected_items_all}), 200
 
+#Endpoint to handle an input address to retrieve price
 @app.route('/api/address', methods=['POST'])
 def get_address_price():
     req_data = request.get_json()
