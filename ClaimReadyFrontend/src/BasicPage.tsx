@@ -315,14 +315,6 @@ function App() {
               </button>
             </div>
           </div>
-
-          {/* New Button Linking to BasicPage */}
-            {/* Other components */}
-            <button className="flex justify-center mt-12" onClick={() => navigate('/basic')}>
-              <span className="bg-buttonColor text-black font-semibold py-2 px-4 rounded-lg">
-                Go to Basic Page
-              </span>
-            </button>
         </div>
       </section>
     </div>
@@ -330,13 +322,4 @@ function App() {
 }
 
 
-const Main = () => (
-  <Router>
-    <Routes>
-      <Route path="/" element={<App />} />
-      <Route path="/basic" element={<BasicPage />} />
-    </Routes>
-  </Router>
-);
-
-export default Main;
+export default App;
