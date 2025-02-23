@@ -1,79 +1,47 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { Upload, X } from 'lucide-react';
 import Spline from '@splinetool/react-spline';
-import DynamicTable from './DynamicTable';
 import BasicPage from './BasicPage';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 
-const LOCAL_STORAGE_KEY = "tableData";
 
-const App: React.FC = () => {
-  // Load data from localStorage or use default values
-  const [tableData, setTableData] = useState<{ item: string; price: string }[]>(() => {
-    const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return savedData ? JSON.parse(savedData) : [
-      { item: 'Laptop', price: '$1,200' },
-      { item: 'Phone', price: '$800' },
-      { item: 'Headphones', price: '$200' },
-      { item: 'Camera', price: '$1,500' },
-    ];
-  });
+const addressData = [
+  { street: "3340 Clerendon Rd", city: "Beverly Hills", zipcode: "90210", state: "CA", price: "$8,325,300" },
+  { street: "95 Tustin Rd", city: "Pasadena", zipcode: "91105", state: "CA", price: "$5,800,000" },
+  { street: "860 Chautauqua Blvd", city: "Pacific Palisades", zipcode: "90272", state: "CA", price: "$9,348,700" },
+  { street: "808 Wilshire Blvd", city: "Santa Monica", zipcode: "90017", state: "CA", price: "$1,430,000" },
+  { street: "615 Seward St", city: "Los Angeles", zipcode: "90004", state: "CA", price: "$3,729,100" },
+  { street: "10250 Constellation Blvd", city: "Los Angeles", zipcode: "90067", state: "CA", price: "$4,642,563" },
+  { street: "7615 Hollywood Blvd", city: "Los Angeles", zipcode: "90046", state: "CA", price: "$1,887,500" },
+  { street: "1137 Tiffany Cir S", city: "Palm Springs", zipcode: "92262", state: "CA", price: "$6,890,000" },
+  { street: "3903 Carbon Canyon Rd", city: "Brea", zipcode: "92823", state: "CA", price: "$22,625,617" },
+  { street: "10100 Blvd", city: "Santa Monica", zipcode: "90067", state: "CA", price: "$5,716,124" },
+  { street: "9601 Wilshire Blvd", city: "Beverly Hills", zipcode: "90210", state: "CA", price: "$2,004,436" },
+  { street: "17072 Sandra Lee Ln", city: "Huntington Beach", zipcode: "92469", state: "CA", price: "$1,471,100" },
+  { street: "4715 E Maychelle Dr", city: "Anaheim", zipcode: "92807", state: "CA", price: "$1,191,800" },
+  { street: "22031 Carbon Mesa Rd", city: "Malibu", zipcode: "90265", state: "CA", price: "$5,853,800" },
+  { street: "2271 Cheremoya Ave", city: "Los Angeles", zipcode: "90068", state: "CA", price: "$1,774,500" },
+  { street: "656 Lachman Ln", city: "Pacific Palisades", zipcode: "90272", state: "CA", price: "$6,913,600" },
+  { street: "1680 Woodglen Ln", city: "Altadena", zipcode: "91001", state: "CA", price: "$1,666,500" },
+  { street: "9057 Nemo St", city: "West Hollywood", zipcode: "90069", state: "CA", price: "$12,523,567" },
+  { street: "18038 Blue Sail Dr", city: "Pacific Palisades", zipcode: "90272", state: "CA", price: "$8,550,000" },
+  { street: "2050 Stanley Hills Dr", city: "Malibu", zipcode: "90046", state: "CA", price: "$1,356,400" },
+  { street: "1505 10th St", city: "Santa Monica", zipcode: "90401", state: "CA", price: "$8,603,100" },
+  { street: "3903 Carbon Canyon Rd", city: "Brea", zipcode: "92823", state: "CA", price: "$22,625,617" },
+];
 
-  // Save to localStorage whenever tableData changes
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tableData));
-  }, [tableData]);
-
-  // Add a new row
-  const addRow = () => {
-    const newRow = { item: `New Item ${tableData.length + 1}`, price: "$0" };
-    setTableData([...tableData, newRow]);
-  };
-
-  // Clear the table
-  const clearTable = () => {
-    setTableData([]);
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
-  };
-
-  // Sample dataset (addressData)
-
-  const addressData = [
-    { street: "3340 Clerendon Rd", city: "Beverly Hills", zipcode: "90210", state: "CA", price: "$8,325,300" },
-    { street: "95 Tustin Rd", city: "Pasadena", zipcode: "91105", state: "CA", price: "$5,800,000" },
-    { street: "860 Chautauqua Blvd", city: "Pacific Palisades", zipcode: "90272", state: "CA", price: "$9,348,700" },
-    { street: "808 Wilshire Blvd", city: "Santa Monica", zipcode: "90017", state: "CA", price: "$1,430,000" },
-    { street: "615 Seward St", city: "Los Angeles", zipcode: "90004", state: "CA", price: "$3,729,100" },
-    { street: "10250 Constellation Blvd", city: "Los Angeles", zipcode: "90067", state: "CA", price: "$4,642,563" },
-    { street: "7615 Hollywood Blvd", city: "Los Angeles", zipcode: "90046", state: "CA", price: "$1,887,500" },
-    { street: "1137 Tiffany Cir S", city: "Palm Springs", zipcode: "92262", state: "CA", price: "$6,890,000" },
-    { street: "3903 Carbon Canyon Rd", city: "Brea", zipcode: "92823", state: "CA", price: "$22,625,617" },
-    { street: "10100 Blvd", city: "Santa Monica", zipcode: "90067", state: "CA", price: "$5,716,124" },
-    { street: "9601 Wilshire Blvd", city: "Beverly Hills", zipcode: "90210", state: "CA", price: "$2,004,436" },
-    { street: "17072 Sandra Lee Ln", city: "Huntington Beach", zipcode: "92469", state: "CA", price: "$1,471,100" },
-    { street: "4715 E Maychelle Dr", city: "Anaheim", zipcode: "92807", state: "CA", price: "$1,191,800" },
-    { street: "22031 Carbon Mesa Rd", city: "Malibu", zipcode: "90265", state: "CA", price: "$5,853,800" },
-    { street: "2271 Cheremoya Ave", city: "Los Angeles", zipcode: "90068", state: "CA", price: "$1,774,500" },
-    { street: "656 Lachman Ln", city: "Pacific Palisades", zipcode: "90272", state: "CA", price: "$6,913,600" },
-    { street: "1680 Woodglen Ln", city: "Altadena", zipcode: "91001", state: "CA", price: "$1,666,500" },
-    { street: "9057 Nemo St", city: "West Hollywood", zipcode: "90069", state: "CA", price: "$12,523,567" },
-    { street: "18038 Blue Sail Dr", city: "Pacific Palisades", zipcode: "90272", state: "CA", price: "$8,550,000" },
-    { street: "2050 Stanley Hills Dr", city: "Malibu", zipcode: "90046", state: "CA", price: "$1,356,400" },
-    { street: "1505 10th St", city: "Santa Monica", zipcode: "90401", state: "CA", price: "$8,603,100" },
-    { street: "3903 Carbon Canyon Rd", city: "Brea", zipcode: "92823", state: "CA", price: "$22,625,617" },
-  ];
-
-  // Image upload states
+function App() {
   const contentRef = useRef<HTMLDivElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [address, setAddress] = useState(''); // For user input
   const [suggestions, setSuggestions] = useState<typeof addressData>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const navigate = useNavigate();
-  
+
+
+
   const listItems = [
     {
       label: "Overview",
@@ -97,14 +65,14 @@ const App: React.FC = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setSelectedFiles(prev => [...prev, ...files]);
-  
-    files.forEach(file => {
+    setSelectedFiles((prev) => [...prev, ...files]);
+
+    files.forEach((file) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {
         if (reader.result) {
-          setPreviewUrls(prev => [...prev, reader.result as string]);
+          setPreviewUrls((prev) => [...prev, reader.result as string]);
         }
       };
     });
@@ -112,10 +80,12 @@ const App: React.FC = () => {
 
   const removeImage = (index: number) => {
     URL.revokeObjectURL(previewUrls[index]);
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-    setPreviewUrls(prev => prev.filter((_, i) => i !== index));
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Address suggestions logic is commented out for now.
+  /*
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setAddress(value);
@@ -137,37 +107,41 @@ const App: React.FC = () => {
     setAddress(fullAddress);
     setShowSuggestions(false);
   };
+  */
 
   const handleSendData = async () => {
     if (selectedFiles.length === 0) {
       alert("No files selected!");
       return;
     }
+
     setUploading(true);
 
-    // Convert image files to base64 strings
-    const base64Promises = selectedFiles.map(file => {
-      return new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = error => reject(error);
-      });
-    });
-  
     try {
+      // Convert image files to base64 strings
+      const base64Promises = selectedFiles.map((file) => {
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (error) => reject(error);
+        });
+      });
+
       const base64Images = await Promise.all(base64Promises);
+
       // Prepare and send the images payload
       const imageRequestBody = JSON.stringify({
         name: "User's Upload",
-        value: base64Images
+        value: base64Images,
       });
-  
+
       const imageResponse = await fetch("http://10.141.85.222:5000/api/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: imageRequestBody,
       });
+
       const imageResult = await imageResponse.json();
 
       // If an address is provided, send it to a different endpoint
@@ -181,13 +155,14 @@ const App: React.FC = () => {
         });
         addressResult = await addressResponse.json();
       }
-  
+
       // Show both results together
       alert(JSON.stringify({ imageResult, addressResult }, null, 2));
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Failed to upload data.");
     }
+
     setUploading(false);
   };
 
@@ -340,47 +315,11 @@ const App: React.FC = () => {
               </button>
             </div>
           </div>
-
-          {/* New Button Linking to BasicPage */}
-            {/* Other components */}
-            <button className="flex justify-center mt-12" onClick={() => navigate('/basic')}>
-              <span className="bg-buttonColor text-black font-semibold py-2 px-4 rounded-lg">
-                Go to Basic Page
-              </span>
-            </button>
         </div>
       </section>
-
-      <div className="max-w-3xl mx-auto">
-        <h2 className="text-3xl font-bold mb-4">My Dynamic Table</h2>
-        <DynamicTable data={tableData} />
-        {/* You can add your Add/Clear row buttons anywhere you like: */}
-        <div className="mt-4 flex gap-4">
-          <button
-            className="px-4 py-2 bg-blue-500 text-white rounded"
-            onClick={addRow}
-          >
-            Add Row
-          </button>
-          <button
-            className="px-4 py-2 bg-red-500 text-white rounded"
-            onClick={clearTable}
-          >
-            Clear Table
-          </button>
-        </div>
-      </div>
     </div>
   );
-};
+}
 
-const Main = () => (
-  <Router>
-    <Routes>
-      <Route path="/" element={<App />} />
-      <Route path="/basic" element={<BasicPage />} />
-    </Routes>
-  </Router>
-);
 
-export default Main;
+export default App;
