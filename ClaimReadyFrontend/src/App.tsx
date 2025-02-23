@@ -1,34 +1,67 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Upload, X } from 'lucide-react';
 import Spline from '@splinetool/react-spline';
+import DynamicTable from './DynamicTable';
 
-// Sample dataset
-const addressData = [
-  { street: "3340 Clerendon Rd", city: "Beverly Hills", zipcode: "90210", state: "CA", price: "$8,325,300" },
-  { street: "95 Tustin Rd", city: "Pasadena", zipcode: "91105", state: "CA", price: "$5,800,000" },
-  { street: "860 Chautauqua Blvd", city: "Pacific Palisades", zipcode: "90272", state: "CA", price: "$9,348,700" },
-  { street: "808 Wilshire Blvd", city: "Santa Monica", zipcode: "90017", state: "CA", price: "$1,430,000" },
-  { street: "615 Seward St", city: "Los Angeles", zipcode: "90004", state: "CA", price: "$3,729,100" },
-  { street: "10250 Constellation Blvd", city: "Los Angeles", zipcode: "90067", state: "CA", price: "$4,642,563"},
-  { street: "7615 Hollywood Blvd", city: "Los Angeles", zipcode: "90046", state: "CA", price: "$1,887,500" },
-  { street: "1137 Tiffany Cir S", city: "Palm Springs", zipcode: "92262", state: "CA", price: "$6,890,000" },
-  { street: "3903 Carbon Canyon Rd", city: "Brea", zipcode: "92823", state: "CA", price: "$22,625,617" },
-  { street: "10100 Blvd", city: "Santa Monica", zipcode: "90067", state: "CA", price: "$5,716,124" },
-  { street: "9601 Wilshire Blvd", city: "Beverly Hills", zipcode: "90210", state: "CA", price: "$2,004,436" },
-  { street: "17072 Sandra Lee Ln", city: "Huntington Beach", zipcode: "92469", state: "CA", price: "$1,471,100" },
-  { street: "4715 E Maychelle Dr", city: "Anaheim", zipcode: "92807", state: "CA", price: "$1,191,800" },
-  { street: "22031 Carbon Mesa Rd", city: "Malibu", zipcode: "90265", state: "CA", price: "$5,853,800" },
-  { street: "2271 Cheremoya Ave", city: "Los Angeles", zipcode: "90068", state: "CA", price: "$1,774,500" },
-  { street: "656 Lachman Ln", city: "Pacific Palisades", zipcode: "90272", state: "CA", price: "$6,913,600" },
-  { street: "1680 Woodglen Ln", city: "Altadena", zipcode: "91001", state: "CA", price: "$1,666,500" },
-  { street: "9057 Nemo St", city: "West Hollywood", zipcode: "90069", state: "CA", price: "$12,523,567" },
-  { street: "18038 Blue Sail Dr", city: "Pacific Palisades", zipcode: "90272", state: "CA", price: "$8,550,000" },
-  { street: "2050 Stanley Hills Dr", city: "Malibu", zipcode: "90046", state: "CA", price: "$1,356,400" },
-  { street: "1505 10th St", city: "Santa Monica", zipcode: "90401", state: "CA", price: "$8,603,100" },
-  { street: "3903 Carbon Canyon Rd", city: "Brea", zipcode: "92823", state: "CA", price: "$22,625,617" },
-];
+const LOCAL_STORAGE_KEY = "tableData";
 
-function App() {
+const App: React.FC = () => {
+  // Load data from localStorage or use default values
+  const [tableData, setTableData] = useState<{ item: string; price: string }[]>(() => {
+    const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return savedData ? JSON.parse(savedData) : [
+      { item: 'Laptop', price: '$1,200' },
+      { item: 'Phone', price: '$800' },
+      { item: 'Headphones', price: '$200' },
+      { item: 'Camera', price: '$1,500' },
+    ];
+  });
+
+  // Save to localStorage whenever tableData changes
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tableData));
+  }, [tableData]);
+
+  // Add a new row
+  const addRow = () => {
+    const newRow = { item: `New Item ${tableData.length + 1}`, price: "$0" };
+    setTableData([...tableData, newRow]);
+  };
+
+  // Clear the table
+  const clearTable = () => {
+    setTableData([]);
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+  };
+
+  // Sample dataset (addressData)
+
+  const addressData = [
+    { street: "3340 Clerendon Rd", city: "Beverly Hills", zipcode: "90210", state: "CA", price: "$8,325,300" },
+    { street: "95 Tustin Rd", city: "Pasadena", zipcode: "91105", state: "CA", price: "$5,800,000" },
+    { street: "860 Chautauqua Blvd", city: "Pacific Palisades", zipcode: "90272", state: "CA", price: "$9,348,700" },
+    { street: "808 Wilshire Blvd", city: "Santa Monica", zipcode: "90017", state: "CA", price: "$1,430,000" },
+    { street: "615 Seward St", city: "Los Angeles", zipcode: "90004", state: "CA", price: "$3,729,100" },
+    { street: "10250 Constellation Blvd", city: "Los Angeles", zipcode: "90067", state: "CA", price: "$4,642,563" },
+    { street: "7615 Hollywood Blvd", city: "Los Angeles", zipcode: "90046", state: "CA", price: "$1,887,500" },
+    { street: "1137 Tiffany Cir S", city: "Palm Springs", zipcode: "92262", state: "CA", price: "$6,890,000" },
+    { street: "3903 Carbon Canyon Rd", city: "Brea", zipcode: "92823", state: "CA", price: "$22,625,617" },
+    { street: "10100 Blvd", city: "Santa Monica", zipcode: "90067", state: "CA", price: "$5,716,124" },
+    { street: "9601 Wilshire Blvd", city: "Beverly Hills", zipcode: "90210", state: "CA", price: "$2,004,436" },
+    { street: "17072 Sandra Lee Ln", city: "Huntington Beach", zipcode: "92469", state: "CA", price: "$1,471,100" },
+    { street: "4715 E Maychelle Dr", city: "Anaheim", zipcode: "92807", state: "CA", price: "$1,191,800" },
+    { street: "22031 Carbon Mesa Rd", city: "Malibu", zipcode: "90265", state: "CA", price: "$5,853,800" },
+    { street: "2271 Cheremoya Ave", city: "Los Angeles", zipcode: "90068", state: "CA", price: "$1,774,500" },
+    { street: "656 Lachman Ln", city: "Pacific Palisades", zipcode: "90272", state: "CA", price: "$6,913,600" },
+    { street: "1680 Woodglen Ln", city: "Altadena", zipcode: "91001", state: "CA", price: "$1,666,500" },
+    { street: "9057 Nemo St", city: "West Hollywood", zipcode: "90069", state: "CA", price: "$12,523,567" },
+    { street: "18038 Blue Sail Dr", city: "Pacific Palisades", zipcode: "90272", state: "CA", price: "$8,550,000" },
+    { street: "2050 Stanley Hills Dr", city: "Malibu", zipcode: "90046", state: "CA", price: "$1,356,400" },
+    { street: "1505 10th St", city: "Santa Monica", zipcode: "90401", state: "CA", price: "$8,603,100" },
+    { street: "3903 Carbon Canyon Rd", city: "Brea", zipcode: "92823", state: "CA", price: "$22,625,617" },
+  ];
+
+  // Image upload states
   const contentRef = useRef<HTMLDivElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -46,7 +79,7 @@ function App() {
     const files = Array.from(e.target.files || []);
     setSelectedFiles(prev => [...prev, ...files]);
   
-    files.forEach((file) => {
+    files.forEach(file => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {
@@ -63,8 +96,7 @@ function App() {
     setPreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Update suggestions as user types
-  {/*const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setAddress(value);
     if (value.length > 0) {
@@ -78,9 +110,8 @@ function App() {
       setSuggestions([]);
       setShowSuggestions(false);
     }
-  };*/}
+  };
 
-  // When user clicks on a suggestion
   const handleSelectSuggestion = (item: typeof addressData[0]) => {
     const fullAddress = `${item.street}, ${item.city}, ${item.state} ${item.zipcode}`;
     setAddress(fullAddress);
@@ -92,9 +123,8 @@ function App() {
       alert("No files selected!");
       return;
     }
-  
     setUploading(true);
-  
+
     // Convert image files to base64 strings
     const base64Promises = selectedFiles.map(file => {
       return new Promise<string>((resolve, reject) => {
@@ -107,7 +137,6 @@ function App() {
   
     try {
       const base64Images = await Promise.all(base64Promises);
-  
       // Prepare and send the images payload
       const imageRequestBody = JSON.stringify({
         name: "User's Upload",
@@ -119,7 +148,6 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: imageRequestBody,
       });
-  
       const imageResult = await imageResponse.json();
 
       // If an address is provided, send it to a different endpoint
@@ -140,7 +168,6 @@ function App() {
       console.error("Upload failed:", error);
       alert("Failed to upload data.");
     }
-  
     setUploading(false);
   };
 
@@ -163,7 +190,7 @@ function App() {
                 <strong className="text-white">Value:</strong> Our model will analyze the image and give you pricing of each product in the picture.
               </li>
               <li>
-                <strong className="text-white">Protect:</strong> Using this pricing, you can easily get a valuation of your belongings for insurance claims.
+                <strong className="text-white">Protect:</strong> Use this pricing for a valuation of your belongings for insurance claims.
               </li>
             </ol>
           </div>
@@ -172,7 +199,7 @@ function App() {
             <h2 className="text-3xl text-white font-bold mb-6">Upload Images</h2>
 
             {/* Address input field */}
-            {/*<div className="mb-4 relative">
+            <div className="mb-4 relative">
               <input
                 type="text"
                 value={address}
@@ -196,7 +223,7 @@ function App() {
                   })}
                 </ul>
               )}
-            </div>*/}
+            </div>
 
             <div className="relative">
               <input
@@ -245,8 +272,28 @@ function App() {
           </div>
         </div>
       </section>
+
+      <div className="max-w-3xl mx-auto">
+        <h2 className="text-3xl font-bold mb-4">My Dynamic Table</h2>
+        <DynamicTable data={tableData} />
+        {/* You can add your Add/Clear row buttons anywhere you like: */}
+        <div className="mt-4 flex gap-4">
+          <button
+            className="px-4 py-2 bg-blue-500 text-white rounded"
+            onClick={addRow}
+          >
+            Add Row
+          </button>
+          <button
+            className="px-4 py-2 bg-red-500 text-white rounded"
+            onClick={clearTable}
+          >
+            Clear Table
+          </button>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
 export default App;
