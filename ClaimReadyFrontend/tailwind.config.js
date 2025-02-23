@@ -6,7 +6,9 @@ export default {
       colors: {
         cardColor: '#950000',
         buttonColor: '#E8EEF2',
-        buttonHover: '#A7A7A7', //darker accent color (for hovering
+        buttonHover: '#A7A7A7',
+        red: '#950000',
+        background: '#161616' //darker accent color (for hovering
       },
       
     },
