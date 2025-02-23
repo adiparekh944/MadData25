@@ -10,10 +10,6 @@ const App: React.FC = () => {
   const [tableData, setTableData] = useState<{ item: string; price: string }[]>(() => {
     const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
     return savedData ? JSON.parse(savedData) : [
-      { item: 'Laptop', price: '$1,200' },
-      { item: 'Phone', price: '$800' },
-      { item: 'Headphones', price: '$200' },
-      { item: 'Camera', price: '$1,500' },
     ];
   });
 
@@ -22,13 +18,7 @@ const App: React.FC = () => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tableData));
   }, [tableData]);
 
-  // -------------------------------------------------
-  // 1) Basic Table Functions
-  // -------------------------------------------------
-
-  // -------------------------------------------------
-  // 6) Export tableData to CSV
-  // -------------------------------------------------
+  
   const escapeCSVField = (field: string) => {
     if (field.includes(',') || field.includes('"') || field.includes('\n')) {
       return `"${field.replace(/"/g, '""')}"`;
@@ -118,21 +108,6 @@ const App: React.FC = () => {
   const [address, setAddress] = useState('');
   const [suggestions, setSuggestions] = useState<typeof addressData>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-
-  const listItems = [
-    {
-      label: "Overview",
-      text: "This is the overview text. It gives a quick summary or introduction."
-    },
-    {
-      label: "Details",
-      text: "Here are the details. You can provide more in-depth information here."
-    },
-    {
-      label: "Contact",
-      text: "This is the contact section. Provide contact info or next steps here."
-    },
-  ];
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -288,68 +263,38 @@ const App: React.FC = () => {
         onClick={handleScroll}
       />
 
-      <section ref={contentRef} className="min-h-screen py-20 px-4 bg-background">
+      <section ref={contentRef} className="h-[800px] py-20 px-4 bg-background">
         {/* 
           1) Vertical list + detail text in a 2-column layout 
           2) Then below that, the "Process" and "Upload Images" cards
         */}
         <div className="max-w-6xl mx-auto">
-          {/* 2-column layout for the list and its text */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            {/* Left Column: Vertical list */}
-            <div className="flex flex-col space-y-6">
-              {listItems.map((item, index) => {
-                const isSelected = index === selectedIndex;
-                return (
-                  <button
-                    key={item.label}
-                    onClick={() => setSelectedIndex(index)}
-                    className={`
-                      text-5xl text-white text-left py-2 transition-colors duration-300
-                      hover:text-red-500
-                      ${isSelected ? 'border-l-4 border-cardColor pl-4' : ''}
-                    `}
-                  >
-                    {item.label}
-                  </button>
-                );
-              })}
-            </div>
 
-            {/* Right Column: Text for the selected item */}
-            <div className="text-white text-xl">
-              {listItems[selectedIndex].text}
-            </div>
-          </div>
 
           {/* The Process & Upload Images section */}
           <div className="grid md:grid-cols-2 gap-12">
             {/* The Process Card */}
             <div className="bg-cardColor p-8 rounded-2xl">
-              <h2 className="text-3xl text-white font-bold mb-6">
+              <h2 className="text-4xl text-white font-bold mb-6">
                 The Process
               </h2>
-              <ol className="mt-8 space-y-4 list-decimal list-inside text-gray-300">
+              <ol className="mt-8 space-y-4 list-decimal list-inside text-gray-300 text-xl">
                 <li>
-                  <strong className="text-white">Scan:</strong> Upload images of
-                  your belongings.
+                  <strong className="text-white">Scan:</strong> Upload images, and let AI catalog your lost belongings.
                 </li>
                 <li>
-                  <strong className="text-white">Value:</strong> Our model will
-                  analyze the image and give you pricing of each product in the
-                  picture.
+                  <strong className="text-white">Value:</strong> Instantly retrieve item prices for accurate insurance claims.
                 </li>
                 <li>
-                  <strong className="text-white">Protect:</strong> Using this
-                  pricing, you can easily get a valuation of your belongings for
-                  insurance claims.
+                  <strong className="text-white">Protect:</strong> Ensure smooth and verified claims for a faster recovery.
+
                 </li>
               </ol>
             </div>
 
             {/* Upload Images Card */}
             <div className="bg-cardColor backdrop-blur-lg p-8 rounded-2xl relative">
-              <h2 className="text-3xl text-white font-bold mb-6">
+              <h2 className="text-4xl text-white font-bold mb-6">
                 Upload Images
               </h2>
 
@@ -362,7 +307,7 @@ const App: React.FC = () => {
                   className="w-full p-2 rounded-lg border border-gray-400 focus:outline-none"
                 />
                 {showSuggestions && suggestions.length > 0 && (
-                  <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-y-auto mt-1">
+                  <ul className="absolute z-10 w-full bg-background border border-gray-300 rounded-md max-h-60 overflow-y-auto mt-1">
                     {suggestions.map((item, idx) => {
                       const fullAddress = `${item.street}, ${item.city}, ${item.state} ${item.zipcode}`;
                       return (
@@ -434,8 +379,8 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      <div className="w-full mx-auto bg-background p-6">
-        <h2 className="text-3xl font-bold mb-4">My Dynamic Table</h2>
+      <div className="w-full bg-background">
+        <h2 className="text-3xl text-black font-bold mb-4 text-center ">Price List</h2>
         <DynamicTable
           data={tableData}
           // If you added "onEditPrice" / "onDeleteRow" in DynamicTable,
@@ -445,13 +390,7 @@ const App: React.FC = () => {
         />
         <div className="mt-4 flex gap-4">
           <button
-            className="px-4 py-2 bg-blue-500 text-white rounded"
-            onClick={addRow}
-          >
-            Add Row
-          </button>
-          <button
-            className="px-4 py-2 bg-red-500 text-white rounded"
+            className="px-4 py-2 bg-red text-white rounded"
             onClick={clearTable}
           >
             Clear Table
@@ -463,7 +402,6 @@ const App: React.FC = () => {
             Export CSV
           </button>
         </div>
-        
       </div>
     </div>
   );
