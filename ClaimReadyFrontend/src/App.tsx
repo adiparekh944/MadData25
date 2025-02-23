@@ -192,7 +192,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="w-screen h-screen bg-black">
+    <div className="w-screen h-screen bg-background">
       <Spline
         scene="https://prod.spline.design/VMVgTOkbPJRNTowR/scene.splinecode"
         onClick={handleScroll}
