@@ -118,17 +118,21 @@ def process_image_upload():
     req_data = request.get_json()
     if not req_data or 'name' not in req_data or 'value' not in req_data:
         return jsonify({"status": "fail", "message": "Missing 'name' or 'value' (base64 image list)"}), 400
+        print("1")
 
     image_list = req_data['value']
     if not isinstance(image_list, list) or len(image_list) == 0:
         return jsonify({"status": "fail", "message": "'value' must be a non-empty list of base64-encoded images"}), 400
+        print("2")
 
     detected_items_all = []
     # Process all images in the list
     for base64_image in image_list:
+        print("3")
         try:
             detected_items = process_image(base64_image, req_data['name'])
-            detected_items_all.append(detected_items)
+            detected_items_all.extend(detected_items)
+
         except Exception as e:
             return jsonify({"status": "fail", "message": str(e)}), 400
 
