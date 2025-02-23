@@ -6,7 +6,6 @@ import DynamicTable from './DynamicTable';
 const LOCAL_STORAGE_KEY = "tableData";
 
 const App: React.FC = () => {
-  // Load data from localStorage or use default values
   const [tableData, setTableData] = useState<{ item: string; price: string }[]>(() => {
     const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
     return savedData ? JSON.parse(savedData) : [
@@ -37,7 +36,7 @@ const App: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = "tableData.csv";
+    a.download = "PriceList.csv";
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -53,7 +52,6 @@ const App: React.FC = () => {
     localStorage.removeItem(LOCAL_STORAGE_KEY);
   };
 
-  // (Optional) Edit Price
   const editPrice = (index: number) => {
     const newPrice = prompt('Enter the new dollar amount:');
     if (newPrice !== null) {
@@ -65,14 +63,11 @@ const App: React.FC = () => {
     }
   };
 
-  // (Optional) Delete a single row (by index)
   const deleteRow = (index: number) => {
     setTableData((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // -------------------------------------------------
-  // 2) addressData (for suggestions)
-  // -------------------------------------------------
+  
   const addressData = [
     { street: "3340 Clerendon Rd", city: "Beverly Hills", zipcode: "90210", state: "CA", price: "$8,325,300" },
     { street: "95 Tustin Rd", city: "Pasadena", zipcode: "91105", state: "CA", price: "$5,800,000" },
@@ -98,9 +93,7 @@ const App: React.FC = () => {
     { street: "3903 Carbon Canyon Rd", city: "Brea", zipcode: "92823", state: "CA", price: "$22,625,617" },
   ];
 
-  // -------------------------------------------------
-  // 3) Misc UI states
-  // -------------------------------------------------
+
   const contentRef = useRef<HTMLDivElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -111,9 +104,7 @@ const App: React.FC = () => {
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // -------------------------------------------------
-  // 4) Functions for scrolling, file uploads, address input
-  // -------------------------------------------------
+  
   const handleScroll = () => {
     contentRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -161,9 +152,7 @@ const App: React.FC = () => {
     setShowSuggestions(false);
   };
 
-  // -------------------------------------------------
-  // 5) Submit data to server, then update tableData
-  // -------------------------------------------------
+  
   const handleSendData = async () => {
     if (selectedFiles.length === 0) {
       alert("No files selected!");
@@ -183,7 +172,6 @@ const App: React.FC = () => {
   
     try {
       const base64Images = await Promise.all(base64Promises);
-      // Prepare and send the images payload
       const imageRequestBody = JSON.stringify({
         name: "User's Upload",
         value: base64Images
@@ -196,7 +184,6 @@ const App: React.FC = () => {
       });
       const responseData = await res.json();
 
-      // If an address is provided, send it to a different endpoint
       let addressResult = null;
       if (address.trim()) {
         const addressRequestBody = JSON.stringify({ address });
@@ -208,16 +195,9 @@ const App: React.FC = () => {
         addressResult = await addressRes.json();
       }
   
-      // Show both results
-      alert(JSON.stringify({ imageResult: responseData, addressResult }, null, 2));
 
-      // ------------------------------------------------------------
-      // Because your JSON has { "imageResult": { "detected_items": [] }}
-      // we must do responseData.imageResult.detected_items, not
-      // responseData.detected_items
-      // ------------------------------------------------------------
 
-      // 1) If the user typed an address that matches 'addressData', add it first
+
       if (address.trim()) {
         const matched = addressData.find((a) => address.includes(a.street));
         if (matched) {
@@ -227,14 +207,11 @@ const App: React.FC = () => {
           ]);
         }
       }      
-      alert(JSON.stringify(responseData.detected_items, null, 2));
-      // 2) If the server returned detected items:
       if (responseData.detected_items?.length) {
-        console.log(responseData.detected_items)
+       
 
 
         responseData.detected_items.forEach((detectedItem: any) => {
-          // Make sure to use the correct keys from the JSON
           setTableData((prev) => [
             ...prev,
             {
@@ -253,9 +230,7 @@ const App: React.FC = () => {
     setUploading(false);
   };
 
-  // -------------------------------------------------
-  // 6) Render
-  // -------------------------------------------------
+
   return (
     <div className="w-screen h-screen bg-background">
       <Spline
@@ -264,16 +239,12 @@ const App: React.FC = () => {
       />
 
       <section ref={contentRef} className="h-[800px] py-20 px-4 bg-background">
-        {/* 
-          1) Vertical list + detail text in a 2-column layout 
-          2) Then below that, the "Process" and "Upload Images" cards
-        */}
+        
         <div className="max-w-6xl mx-auto">
 
 
-          {/* The Process & Upload Images section */}
           <div className="grid md:grid-cols-2 gap-12">
-            {/* The Process Card */}
+       
             <div className="bg-cardColor p-8 rounded-2xl">
               <h2 className="text-4xl text-white font-bold mb-6">
                 The Process
@@ -383,8 +354,7 @@ const App: React.FC = () => {
         <h2 className="text-3xl text-black font-bold mb-4 text-center ">Price List</h2>
         <DynamicTable
           data={tableData}
-          // If you added "onEditPrice" / "onDeleteRow" in DynamicTable,
-          // pass them here. If not, remove these lines:
+          
           onEditPrice={editPrice}
           onDeleteRow={deleteRow}
         />
