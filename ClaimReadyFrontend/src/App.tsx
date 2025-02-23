@@ -2,8 +2,6 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Upload, X } from 'lucide-react';
 import Spline from '@splinetool/react-spline';
 import DynamicTable from './DynamicTable';
-import BasicPage from './BasicPage';
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 
 const LOCAL_STORAGE_KEY = "tableData";
 
@@ -24,20 +22,39 @@ const App: React.FC = () => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tableData));
   }, [tableData]);
 
-  // Add a new row
+  // -------------------------------------------------
+  // 1) Basic Table Functions
+  // -------------------------------------------------
   const addRow = () => {
     const newRow = { item: `New Item ${tableData.length + 1}`, price: "$0" };
     setTableData([...tableData, newRow]);
   };
 
-  // Clear the table
   const clearTable = () => {
     setTableData([]);
     localStorage.removeItem(LOCAL_STORAGE_KEY);
   };
 
-  // Sample dataset (addressData)
+  // (Optional) Edit Price
+  const editPrice = (index: number) => {
+    const newPrice = prompt('Enter the new dollar amount:');
+    if (newPrice !== null) {
+      setTableData((prev) => {
+        const updated = [...prev];
+        updated[index] = { ...updated[index], price: newPrice };
+        return updated;
+      });
+    }
+  };
 
+  // (Optional) Delete a single row (by index)
+  const deleteRow = (index: number) => {
+    setTableData((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // -------------------------------------------------
+  // 2) addressData (for suggestions)
+  // -------------------------------------------------
   const addressData = [
     { street: "3340 Clerendon Rd", city: "Beverly Hills", zipcode: "90210", state: "CA", price: "$8,325,300" },
     { street: "95 Tustin Rd", city: "Pasadena", zipcode: "91105", state: "CA", price: "$5,800,000" },
@@ -63,17 +80,17 @@ const App: React.FC = () => {
     { street: "3903 Carbon Canyon Rd", city: "Brea", zipcode: "92823", state: "CA", price: "$22,625,617" },
   ];
 
-  // Image upload states
+  // -------------------------------------------------
+  // 3) Misc UI states
+  // -------------------------------------------------
   const contentRef = useRef<HTMLDivElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [address, setAddress] = useState(''); // For user input
+  const [address, setAddress] = useState('');
   const [suggestions, setSuggestions] = useState<typeof addressData>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const navigate = useNavigate();
-  
+
   const listItems = [
     {
       label: "Overview",
@@ -91,6 +108,9 @@ const App: React.FC = () => {
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
+  // -------------------------------------------------
+  // 4) Functions for scrolling, file uploads, address input
+  // -------------------------------------------------
   const handleScroll = () => {
     contentRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -138,6 +158,9 @@ const App: React.FC = () => {
     setShowSuggestions(false);
   };
 
+  // -------------------------------------------------
+  // 5) Submit data to server, then update tableData
+  // -------------------------------------------------
   const handleSendData = async () => {
     if (selectedFiles.length === 0) {
       alert("No files selected!");
@@ -163,27 +186,62 @@ const App: React.FC = () => {
         value: base64Images
       });
   
-      const imageResponse = await fetch("http://10.141.85.222:5000/api/upload", {
+      const res = await fetch("http://10.141.85.222:5000/api/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: imageRequestBody,
       });
-      const imageResult = await imageResponse.json();
+      const responseData = await res.json();
 
       // If an address is provided, send it to a different endpoint
       let addressResult = null;
       if (address.trim()) {
         const addressRequestBody = JSON.stringify({ address });
-        const addressResponse = await fetch("http://10.141.85.222:5000/api/address", {
+        const addressRes = await fetch("http://10.141.85.222:5000/api/address", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: addressRequestBody,
         });
-        addressResult = await addressResponse.json();
+        addressResult = await addressRes.json();
       }
   
-      // Show both results together
-      alert(JSON.stringify({ imageResult, addressResult }, null, 2));
+      // Show both results
+      alert(JSON.stringify({ imageResult: responseData, addressResult }, null, 2));
+
+      // ------------------------------------------------------------
+      // Because your JSON has { "imageResult": { "detected_items": [] }}
+      // we must do responseData.imageResult.detected_items, not
+      // responseData.detected_items
+      // ------------------------------------------------------------
+
+      // 1) If the user typed an address that matches 'addressData', add it first
+      if (address.trim()) {
+        const matched = addressData.find((a) => address.includes(a.street));
+        if (matched) {
+          setTableData((prev) => [
+            { item: matched.street, price: matched.price },
+            ...prev,
+          ]);
+        }
+      }
+      console.log(responseData.imageResult?.detected_items?.length)
+      
+      // 2) If the server returned detected items:
+      if (responseData.imageResult?.detected_items?.length) {
+        console.log('responseData')
+
+        responseData.imageResult.detected_items.forEach((detectedItem: any) => {
+          // Make sure to use the correct keys from the JSON
+          setTableData((prev) => [
+            ...prev,
+            {
+              item: detectedItem.title || 'Unnamed Item',
+              price: detectedItem.price || '$0',
+            },
+          ]);
+        });
+      }
+
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Failed to upload data.");
@@ -191,6 +249,9 @@ const App: React.FC = () => {
     setUploading(false);
   };
 
+  // -------------------------------------------------
+  // 6) Render
+  // -------------------------------------------------
   return (
     <div className="w-screen h-screen bg-background">
       <Spline
@@ -273,13 +334,16 @@ const App: React.FC = () => {
                 />
                 {showSuggestions && suggestions.length > 0 && (
                   <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-y-auto mt-1">
-                    {suggestions.map((item, index) => {
+                    {suggestions.map((item, idx) => {
                       const fullAddress = `${item.street}, ${item.city}, ${item.state} ${item.zipcode}`;
                       return (
                         <li
-                          key={index}
+                          key={idx}
                           className="p-2 hover:bg-gray-200 cursor-pointer"
-                          onClick={() => handleSelectSuggestion(item)}
+                          onClick={() => {
+                            setAddress(fullAddress);
+                            setShowSuggestions(false);
+                          }}
                         >
                           {fullAddress}
                         </li>
@@ -289,7 +353,6 @@ const App: React.FC = () => {
                 )}
               </div>
               
-
               {/* File Upload */}
               <div className="relative">
                 <input
@@ -312,15 +375,15 @@ const App: React.FC = () => {
               {/* Image Previews */}
               {previewUrls.length > 0 && (
                 <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {previewUrls.map((url, index) => (
+                  {previewUrls.map((url, idx) => (
                     <div key={url} className="relative group">
                       <img
                         src={url}
-                        alt={`Preview ${index + 1}`}
+                        alt={`Preview ${idx + 1}`}
                         className="w-full h-32 object-cover rounded-lg"
                       />
                       <button
-                        onClick={() => removeImage(index)}
+                        onClick={() => removeImage(idx)}
                         className="absolute top-2 right-2 p-1 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <X className="w-4 h-4" />
@@ -339,21 +402,18 @@ const App: React.FC = () => {
               </button>
             </div>
           </div>
-
-          {/* New Button Linking to BasicPage */}
-            {/* Other components */}
-            <button className="flex justify-center mt-12" onClick={() => navigate('/basic')}>
-              <span className="bg-buttonColor text-black font-semibold py-2 px-4 rounded-lg">
-                Go to Basic Page
-              </span>
-            </button>
         </div>
       </section>
 
-      <div className="max-w-3xl mx-auto">
+      <div className="w-full mx-auto bg-background p-6">
         <h2 className="text-3xl font-bold mb-4">My Dynamic Table</h2>
-        <DynamicTable data={tableData} />
-        {/* You can add your Add/Clear row buttons anywhere you like: */}
+        <DynamicTable
+          data={tableData}
+          // If you added "onEditPrice" / "onDeleteRow" in DynamicTable,
+          // pass them here. If not, remove these lines:
+          onEditPrice={editPrice}
+          onDeleteRow={deleteRow}
+        />
         <div className="mt-4 flex gap-4">
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded"
@@ -373,13 +433,4 @@ const App: React.FC = () => {
   );
 };
 
-const Main = () => (
-  <Router>
-    <Routes>
-      <Route path="/" element={<App />} />
-      <Route path="/basic" element={<BasicPage />} />
-    </Routes>
-  </Router>
-);
-
-export default Main;
+export default App;
