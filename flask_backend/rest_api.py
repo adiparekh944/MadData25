@@ -124,14 +124,16 @@ def process_image_upload():
     if not isinstance(image_list, list) or len(image_list) == 0:
         return jsonify({"status": "fail", "message": "'value' must be a non-empty list of base64-encoded images"}), 400
 
-    # Process the first image in the list (modify as needed for multiple images)
-    base64_image = image_list[0]
-    try:
-        detected_items = process_image(base64_image, req_data['name'])
-    except Exception as e:
-        return jsonify({"status": "fail", "message": str(e)}), 400
+    detected_items_all = []
+    # Process all images in the list
+    for base64_image in image_list:
+        try:
+            detected_items = process_image(base64_image, req_data['name'])
+            detected_items_all.append(detected_items)
+        except Exception as e:
+            return jsonify({"status": "fail", "message": str(e)}), 400
 
-    return jsonify({"status": "success", "detected_items": detected_items}), 200
+    return jsonify({"status": "success", "detected_items": detected_items_all}), 200
 
 @app.route('/api/address', methods=['POST'])
 def get_address_price():
