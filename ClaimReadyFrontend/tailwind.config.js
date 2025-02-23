@@ -8,7 +8,7 @@ export default {
         buttonColor: '#E8EEF2',
         buttonHover: '#A7A7A7',
         red: '#950000',
-        background: '#161616' //darker accent color (for hovering
+        background: '#D8D8D8' //darker accent color (for hovering
       },
       
     },
