@@ -25,6 +25,34 @@ const App: React.FC = () => {
   // -------------------------------------------------
   // 1) Basic Table Functions
   // -------------------------------------------------
+
+  // -------------------------------------------------
+  // 6) Export tableData to CSV
+  // -------------------------------------------------
+  const escapeCSVField = (field: string) => {
+    if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+      return `"${field.replace(/"/g, '""')}"`;
+    }
+    return field;
+  };
+  
+  const exportToCSV = () => {
+    const header = ['Item', 'Price'];
+    const rows = tableData.map(row => [row.item, row.price]);
+    const csvContent = [header, ...rows]
+      .map(row => row.map(escapeCSVField).join(","))
+      .join("\n");
+  
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "tableData.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  
+
   const addRow = () => {
     const newRow = { item: `New Item ${tableData.length + 1}`, price: "$0" };
     setTableData([...tableData, newRow]);
@@ -223,24 +251,25 @@ const App: React.FC = () => {
             ...prev,
           ]);
         }
-      }
-      console.log(responseData.imageResult?.detected_items?.length)
-      
+      }      
+      alert(JSON.stringify(responseData.detected_items, null, 2));
       // 2) If the server returned detected items:
-      if (responseData.imageResult?.detected_items?.length) {
-        console.log('responseData')
+      if (responseData.detected_items?.length) {
+        console.log(responseData.detected_items)
 
-        responseData.imageResult.detected_items.forEach((detectedItem: any) => {
+
+        responseData.detected_items.forEach((detectedItem: any) => {
           // Make sure to use the correct keys from the JSON
           setTableData((prev) => [
             ...prev,
             {
               item: detectedItem.title || 'Unnamed Item',
-              price: detectedItem.price || '$0',
+              price: detectedItem.price.slice(0, -1) || '$0',
             },
           ]);
         });
       }
+
 
     } catch (error) {
       console.error("Upload failed:", error);
@@ -427,7 +456,14 @@ const App: React.FC = () => {
           >
             Clear Table
           </button>
+          <button
+            className="px-4 py-2 bg-green-500 text-white rounded"
+            onClick={exportToCSV}
+          >
+            Export CSV
+          </button>
         </div>
+        
       </div>
     </div>
   );
