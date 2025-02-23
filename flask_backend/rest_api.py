@@ -1,16 +1,27 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+import base64
+import os
+from werkzeug.utils import secure_filename
+import csv
+import sys
+sys.path.append(r"C:\Users\jayba\Documents\MadData\image-processing")
 
+from image_processing import process_image
 app = Flask(__name__)
-
 
 # Configure the SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Configure the upload folder
+app.config['UPLOAD_FOLDER'] = 'uploads'
 
 CORS(app)
 db = SQLAlchemy(app)
+
+# Ensure the upload folder exists
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Define a model for your data
 class Data(db.Model):
@@ -24,6 +35,28 @@ class Data(db.Model):
 with app.app_context():
     db.create_all()
 
+address_csv_file = 'housedata.csv'
+address_price_mapping = {}
+#######################################################################
+########################################################################
+# --- New code to load address-price data from CSV ---
+if os.path.exists(address_csv_file):
+    with open(address_csv_file, mode='r', newline='', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            # Adjust these column names to match your CSV file's headers.
+            street = row.get("street", "").strip()
+            city   = row.get("city", "").strip()
+            state  = row.get("state", "").strip()
+            zipcode= row.get("zipcode", "").strip()
+
+            # Build a normalized key in a consistent format.
+            key = f"{street}, {city}, {state} {zipcode}"
+            address_price_mapping[key] = row['price']
+else:
+    print("CSV file for addresses not found:", address_csv_file)
+
+
 # Home endpoint
 @app.route('/', methods=['GET'])
 def home():
@@ -35,29 +68,27 @@ def handle_data():
     if request.method == 'GET':
         all_data = Data.query.all()
         return jsonify({"status": "success", "data": [item.to_dict() for item in all_data]})
-    
+   
     elif request.method == 'POST':
         req_data = request.get_json()
         # Expecting a JSON payload with 'name' and 'value'
         if not req_data or 'name' not in req_data or 'value' not in req_data:
             return jsonify({"status": "fail", "message": "Please provide both 'name' and 'value'"}), 400
-        
+       
         # Check if the name already exists
         if Data.query.filter_by(name=req_data['name']).first():
             return jsonify({"status": "fail", "message": "Name already exists. Use PUT to update"}), 400
-        
+       
         new_record = Data(name=req_data['name'], value=req_data['value'])
         db.session.add(new_record)
         db.session.commit()
         return jsonify({"status": "success", "message": "Record created", "data": new_record.to_dict()}), 201
 
-#hello
-#ben
 # Endpoint to handle GET, PUT, DELETE for a single record based on name
 @app.route('/api/data/<string:key>', methods=['GET', 'PUT', 'DELETE'])
 def handle_single_data(key):
     record = Data.query.filter_by(name=key).first()
-    
+   
     if request.method == 'GET':
         if record:
             return jsonify({"status": "success", "data": record.to_dict()})
@@ -73,7 +104,7 @@ def handle_single_data(key):
         record.value = req_data['value']
         db.session.commit()
         return jsonify({"status": "success", "message": "Record updated", "data": record.to_dict()})
-    
+   
     elif request.method == 'DELETE':
         if not record:
             return jsonify({"status": "fail", "message": "Name not found"}), 404
@@ -81,12 +112,40 @@ def handle_single_data(key):
         db.session.commit()
         return jsonify({"status": "success", "message": "Record deleted"})
 
+# Endpoint to handle a list of base64 image uploads
+# New Endpoint: Process uploaded base64 image and return detected product info
+@app.route('/api/upload', methods=['POST'])
+def process_image_upload():
+    req_data = request.get_json()
+    if not req_data or 'name' not in req_data or 'value' not in req_data:
+        return jsonify({"status": "fail", "message": "Missing 'name' or 'value' (base64 image list)"}), 400
+
+    image_list = req_data['value']
+    if not isinstance(image_list, list) or len(image_list) == 0:
+        return jsonify({"status": "fail", "message": "'value' must be a non-empty list of base64-encoded images"}), 400
+
+    # Process the first image in the list (modify as needed for multiple images)
+    base64_image = image_list[0]
+    try:
+        detected_items = process_image(base64_image, req_data['name'])
+    except Exception as e:
+        return jsonify({"status": "fail", "message": str(e)}), 400
+
+    return jsonify({"status": "success", "detected_items": detected_items}), 200
+
+@app.route('/api/address', methods=['POST'])
+def get_address_price():
+    req_data = request.get_json()
+    if not req_data or 'address' not in req_data:
+        return jsonify({"status": "fail", "message": "Missing 'address' parameter"}), 400
+
+    user_address = req_data['address'].strip()
+    price = address_price_mapping.get(user_address)
+    if price:
+        return jsonify({"status": "success", "address": req_data['address'], "price": price}), 200
+    else:
+        return jsonify({"status": "fail", "message": "Address not found"}), 404
+
+
 if __name__ == '__main__':
-
-
-
-	#This is to delete the db
-	# with app.app_context():
-	# 	db.drop_all()   # Drops all tables, erasing your data
-	# 	db.create_all() # Creates tables based on your current model definitions
-	app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

@@ -263,7 +263,6 @@ const App: React.FC = () => {
                 Upload Images
               </h2>
 
-              {/* Address input field (commented out by default)
               <div className="mb-4 relative">
                 <input
                   type="text"
@@ -289,7 +288,7 @@ const App: React.FC = () => {
                   </ul>
                 )}
               </div>
-              */}
+              
 
               {/* File Upload */}
               <div className="relative">
