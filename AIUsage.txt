@@ -1,6 +1,0 @@
-AI Usage:
-
-1. Comma splicing logic in the App.tsx file.
-2. Used LLMs to help with implementing Imgur API.
-3. Used LLMs for exporting CSV functionality and logic.
-4. Used LLMs to debug parts of code.
