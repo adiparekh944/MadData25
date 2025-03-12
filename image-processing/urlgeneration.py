@@ -6,7 +6,7 @@ import YOLOv8
 # Function to uplooad an image to Imgur
 def upload_to_imgur(image_path):
     """Uploads an image to Imgur and returns the public URL."""
-    IMGUR_CLIENT_ID = "1a23edae30fd974"
+    IMGUR_CLIENT_ID = "86c4b0b54c21320"
     url = "https://api.imgur.com/3/upload"
     headers = {"Authorization": f"Client-ID {IMGUR_CLIENT_ID}"}
 

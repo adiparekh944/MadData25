@@ -3,21 +3,27 @@ import { Upload, X } from 'lucide-react';
 import Spline from '@splinetool/react-spline';
 import DynamicTable from './DynamicTable';
 
+// Define a const key, can be anything
 const LOCAL_STORAGE_KEY = "tableData";
-
+//The state variable tableData is initialized by running a function.
+//so code only executes once during the first render
 const App: React.FC = () => {
   const [tableData, setTableData] = useState<{ item: string; price: string }[]>(() => {
+    //get all the data
     const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    //if there is data return is any
     return savedData ? JSON.parse(savedData) : [
     ];
   });
 
   // Save to localStorage whenever tableData changes
   useEffect(() => {
+    //JS object to a JSON string
+    //2nd param: this will only run when that changes
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tableData));
   }, [tableData]);
 
-  
+  //if the item contains a comma or quotes, the csv table wont break. it would break other wise
   const escapeCSVField = (field: string) => {
     if (field.includes(',') || field.includes('"') || field.includes('\n')) {
       return `"${field.replace(/"/g, '""')}"`;
@@ -26,12 +32,16 @@ const App: React.FC = () => {
   };
   
   const exportToCSV = () => {
+    // column names
     const header = ['Item', 'Price'];
+    //iterate through each thing in local storage
     const rows = tableData.map(row => [row.item, row.price]);
+    //make the table and use escapeCSVField to ensure proper formatting
     const csvContent = [header, ...rows]
       .map(row => row.map(escapeCSVField).join(","))
       .join("\n");
-  
+    //Binary Large Object- container for raw data
+    //create a Blob with our CSV string and specify its MIME(Multipurpose Internet Mail Extensions)(type of file) type as CSV with UTF-8 encoding.
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -177,7 +187,7 @@ const App: React.FC = () => {
         value: base64Images
       });
   
-      const res = await fetch("http://10.141.85.222:5000/api/upload", {
+      const res = await fetch("http://10.141.239.90:5000/api/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: imageRequestBody,
@@ -187,7 +197,7 @@ const App: React.FC = () => {
       let addressResult = null;
       if (address.trim()) {
         const addressRequestBody = JSON.stringify({ address });
-        const addressRes = await fetch("http://10.141.85.222:5000/api/address", {
+        const addressRes = await fetch("http://10.141.239.90:5000/api/address", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: addressRequestBody,

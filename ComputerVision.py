@@ -10,7 +10,7 @@ params = {
     "engine": "google_lens",
     "search_type": "visual_matches",
     "url": "",
-    "api_key": "EVcvsPqNbkVND8547pSewouv"
+    "api_key": "pZx3VsZpHF4j8vQ776g2Ew56"
 }
 
 csv_filename = "image_urls.csv"

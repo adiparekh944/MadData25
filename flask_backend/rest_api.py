@@ -6,7 +6,7 @@ import os
 from werkzeug.utils import secure_filename
 import csv
 import sys
-sys.path.append(r"C:\Users\jayba\Documents\MadData\image-processing")
+sys.path.append(r"/Users/soham/Documents/GitHub/MadData25/image-processing")
 
 from image_processing import process_image
 app = Flask(__name__)
