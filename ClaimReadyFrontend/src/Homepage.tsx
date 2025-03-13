@@ -43,22 +43,25 @@ const App: React.FC = () => {
     //Binary Large Object- container for raw data
     //create a Blob with our CSV string and specify its MIME(Multipurpose Internet Mail Extensions)(type of file) type as CSV with UTF-8 encoding.
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    // Generate a temporary URL for the Blob.
+    // This URL can be used to access the Blob's data (in this case, our CSV file) as if it were a file.
     const url = URL.createObjectURL(blob);
+    // Create an anchor <a> element dynamically.
+    // This element will be used to trigger a download of the CSV file.
     const a = document.createElement('a');
+    // Set the href attribute of the anchor to the Blob URL we created
     a.href = url;
+    //when they download itll be named this
     a.download = "PriceList.csv";
+    //itll be triggered when they click
     a.click();
+    //release URL to free up memory
     URL.revokeObjectURL(url);
-  };
-  
-
-  const addRow = () => {
-    const newRow = { item: `New Item ${tableData.length + 1}`, price: "$0" };
-    setTableData([...tableData, newRow]);
   };
 
   const clearTable = () => {
     setTableData([]);
+    //removes everything from tableData
     localStorage.removeItem(LOCAL_STORAGE_KEY);
   };
 
@@ -66,13 +69,14 @@ const App: React.FC = () => {
     const newPrice = prompt('Enter the new dollar amount:');
     if (newPrice !== null) {
       setTableData((prev) => {
+        //create a shallow copy, we we arent copying directly, to avoid bugs
         const updated = [...prev];
         updated[index] = { ...updated[index], price: newPrice };
         return updated;
       });
     }
   };
-
+  //iterate through everything and remove it all
   const deleteRow = (index: number) => {
     setTableData((prev) => prev.filter((_, i) => i !== index));
   };
@@ -103,7 +107,7 @@ const App: React.FC = () => {
     { street: "3903 Carbon Canyon Rd", city: "Brea", zipcode: "92823", state: "CA", price: "$22,625,617" },
   ];
 
-
+  //syntax is slightly different because of the typescript
   const contentRef = useRef<HTMLDivElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -112,7 +116,6 @@ const App: React.FC = () => {
   const [suggestions, setSuggestions] = useState<typeof addressData>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
 
   
   const handleScroll = () => {
@@ -155,13 +158,6 @@ const App: React.FC = () => {
       setShowSuggestions(false);
     }
   };
-
-  const handleSelectSuggestion = (item: typeof addressData[0]) => {
-    const fullAddress = `${item.street}, ${item.city}, ${item.state} ${item.zipcode}`;
-    setAddress(fullAddress);
-    setShowSuggestions(false);
-  };
-
   
   const handleSendData = async () => {
     if (selectedFiles.length === 0) {
@@ -172,6 +168,7 @@ const App: React.FC = () => {
 
     // Convert image files to base64 strings
     const base64Promises = selectedFiles.map(file => {
+      //I "promise" to return a value. async
       return new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -181,6 +178,7 @@ const App: React.FC = () => {
     });
   
     try {
+      //turn it from a JS object to a JSON string so we can ship it off
       const base64Images = await Promise.all(base64Promises);
       const imageRequestBody = JSON.stringify({
         name: "User's Upload",
@@ -190,8 +188,10 @@ const App: React.FC = () => {
       const res = await fetch("http://10.141.239.90:5000/api/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        //ship it off here
         body: imageRequestBody,
       });
+      //receive the data here
       const responseData = await res.json();
 
       let addressResult = null;
@@ -204,13 +204,12 @@ const App: React.FC = () => {
         });
         addressResult = await addressRes.json();
       }
-  
-
 
 
       if (address.trim()) {
         const matched = addressData.find((a) => address.includes(a.street));
         if (matched) {
+          //add the address to the table
           setTableData((prev) => [
             { item: matched.street, price: matched.price },
             ...prev,
@@ -218,9 +217,7 @@ const App: React.FC = () => {
         }
       }      
       if (responseData.detected_items?.length) {
-       
-
-
+        //if it has length we will iterate through and add all them to the local storage
         responseData.detected_items.forEach((detectedItem: any) => {
           setTableData((prev) => [
             ...prev,
@@ -251,7 +248,6 @@ const App: React.FC = () => {
       <section ref={contentRef} className="h-[800px] py-20 px-4 bg-background">
         
         <div className="max-w-6xl mx-auto">
-
 
           <div className="grid md:grid-cols-2 gap-12">
        

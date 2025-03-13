@@ -6,12 +6,13 @@ import os
 from werkzeug.utils import secure_filename
 import csv
 import sys
+#r -  raw string, slashs dont matter
 sys.path.append(r"/Users/soham/Documents/GitHub/MadData25/image-processing")
 
 from image_processing import process_image
 app = Flask(__name__)
 
-# Configure the SQLite database
+# Configure the SQLite database, ORM(Object Relational Mapping) to the SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Configure the upload folder
@@ -37,14 +38,13 @@ with app.app_context():
 
 address_csv_file = 'housedata.csv'
 address_price_mapping = {}
-#######################################################################
-########################################################################
+
 # --- New code to load address-price data from CSV ---
 if os.path.exists(address_csv_file):
     with open(address_csv_file, mode='r', newline='', encoding='utf-8') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            # Adjust these column names to match your CSV file's headers.
+            # CSV file's headers.
             street = row.get("street", "").strip()
             city   = row.get("city", "").strip()
             state  = row.get("state", "").strip()
@@ -52,6 +52,7 @@ if os.path.exists(address_csv_file):
 
             # Build a normalized key in a consistent format.
             key = f"{street}, {city}, {state} {zipcode}"
+            # assigns the price to the key, dictionary key
             address_price_mapping[key] = row['price']
 else:
     print("CSV file for addresses not found:", address_csv_file)
@@ -67,11 +68,12 @@ def home():
 def handle_data():
     if request.method == 'GET':
         all_data = Data.query.all()
+        # iterate through and return all 
         return jsonify({"status": "success", "data": [item.to_dict() for item in all_data]})
    
     elif request.method == 'POST':
         req_data = request.get_json()
-        # Expecting a JSON payload with 'name' and 'value'
+        # Expecting JSON (JSON.stringify does this in the fronend) with 'name' and 'value'
         if not req_data or 'name' not in req_data or 'value' not in req_data:
             return jsonify({"status": "fail", "message": "Please provide both 'name' and 'value'"}), 400
        
