@@ -42,7 +42,7 @@ def upload_to_imgur(image_path):
     """
     Upload an image file to Imgur and return its public URL.
     """
-    IMGUR_CLIENT_ID = "f43fa39e86ae48c"
+    IMGUR_CLIENT_ID = "e3d0e258f76e006"
     url = "https://api.imgur.com/3/upload"
     headers = {"Authorization": f"Client-ID {IMGUR_CLIENT_ID}"}
     with open(image_path, "rb") as img_file:
@@ -83,12 +83,11 @@ def process_detections(image, detections, base_name: str):
             "engine": "google_lens",
             "search_type": "all",
             "url": image_url,
-            "api_key": "YRJFYaiEr1jGXfNM7p7CQmTc"
+            "api_key": "CDM8R5vsoLjsnTryw7MMUDJn"
         }
         try:
             response = requests.get(search_api_url, params=params, timeout=15)
             s = response.text
-            print(s)
             title_match = re.search(r'"title":\s*"([^"]*)', s)
             title = title_match.group(1) if title_match else "N/A"
             link_match = re.search(r'"link":\s*"([^"]*)', s)
