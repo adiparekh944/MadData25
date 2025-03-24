@@ -16,11 +16,6 @@ Ensure you have **Docker** installed on your machine.
 ### **Step 2: Navigate to the Project Directory**
 1. Open your terminal.
 2. Navigate to the `MadData` directory:
-
-```bash
-cd /path/to/MadData
-```
-
 ---
 
 ### **Step 3: Run the Application**
