@@ -177,23 +177,39 @@ const App: React.FC = () => {
         value: base64Images
       });
   
-      const res = await fetch("http://10.141.85.222:5000/api/upload", {
+      // const res = await fetch("http://10.141.85.222:5000/api/upload", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: imageRequestBody,
+      // });
+       const res = await fetch("http://localhost:8080/api/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: imageRequestBody,
       });
       const responseData = await res.json();
 
-      let addressResult = null;
+      // let addressResult = null;
+      // if (address.trim()) {
+      //   const addressRequestBody = JSON.stringify({ address });
+      //   const addressRes = await fetch("http://10.141.85.222:5000/api/address", {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json" },
+      //     body: addressRequestBody,
+      //   });
+      //   addressResult = await addressRes.json();
+      // }
+       let addressResult = null;
       if (address.trim()) {
         const addressRequestBody = JSON.stringify({ address });
-        const addressRes = await fetch("http://10.141.85.222:5000/api/address", {
+        const addressRes = await fetch("http://localhost:8080/api/address", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: addressRequestBody,
         });
         addressResult = await addressRes.json();
       }
+  
   
 
 

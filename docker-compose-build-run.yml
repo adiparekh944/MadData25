@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./ClaimReadyFrontend        # Path to frontend folder
+      dockerfile: Dockerfile      # Dockerfile for frontend
+    ports:
+      - "3000:80"              # Map frontend to host's port 3000
+    volumes:
+      - ./frontend:/app          # For live-reload in development
+      - /app/node_modules        # Prevent overwriting node_modules
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./flask_backend        # Path to backend folder
+      dockerfile: Dockerfile      # Dockerfile for backend
+    ports:
+      - "8080:8000"              # Map backend to host's port 5000
+    volumes:
+      - ./backend:/app           # For live-reload in development
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

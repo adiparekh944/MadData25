@@ -6,7 +6,7 @@ import os
 from werkzeug.utils import secure_filename
 import csv
 import sys
-sys.path.append(r"C:\Users\jayba\Documents\MadData\image-processing")
+sys.path.append(r"./image-processing")
 
 from image_processing import process_image
 app = Flask(__name__)
@@ -112,6 +112,45 @@ def handle_single_data(key):
         db.session.commit()
         return jsonify({"status": "success", "message": "Record deleted"})
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
 # Endpoint to handle a list of base64 image uploads
 @app.route('/api/upload', methods=['POST'])
 def process_image_upload():
@@ -154,4 +193,4 @@ def get_address_price():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)
