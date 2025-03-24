@@ -55,7 +55,7 @@ docker-compose -f docker-compose-run.yml up
 
 ### ⚠️ **Troubleshooting**
 If you encounter issues:
-- Ensure Docker is running.
+- Ensure Docker is running. (docker desktop application always has to be running)
 - If there are dependency issues, try rebuilding the containers:
 
 ```bash
@@ -63,6 +63,4 @@ docker-compose -f docker-compose-build-run.yml up --build
 ```
 
 ---
-
-### ✨ **Happy Coding! 🚀**
 
