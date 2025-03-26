@@ -94,7 +94,8 @@ def process_detections(image, detections, base_name: str):
             link = link_match.group(1) if link_match else "N/A"
             price_match = re.search(r'"price":\s*"([^"]*)', s)
             price = price_match.group(1) if price_match else "N/A"
-            
+            print(f"Detection {i}: Uploaded to {image_url}")
+            print(f"API Response: {response.text}")
             detected_items.append({
                 "title": title,
                 "link": link,
