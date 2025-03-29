@@ -1,4 +1,6 @@
-## 📖 README.md - Instructions for Running the Application
+
+
+## 📖 README.md - Instructions for Running ClaimReady
 
 ## 🚀 Running the Application
 
