@@ -8,7 +8,7 @@ url = "https://www.searchapi.io/api/v1/search"
 test_image_url = "https://i.imgur.com/nX3TI2w.jpeg"
 
 # API Key
-API_KEY = "pZx3VsZpHF4j8vQ776g2Ew56"
+API_KEY = "9902583ad9db49f"
 
 # Request parameters
 params = {

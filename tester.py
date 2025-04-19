@@ -1,7 +1,7 @@
 import requests
 
 # Imgur API details
-IMGUR_CLIENT_ID = "86c4b0b54c21320"
+IMGUR_CLIENT_ID = "9902583ad9db49f"
 URL = "https://api.imgur.com/3/upload"
 
 # Test image (replace with an actual file path on your machine)

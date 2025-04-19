@@ -42,7 +42,7 @@ def upload_to_imgur(image_path):
     """
     Upload an image file to Imgur and return its public URL.
     """
-    IMGUR_CLIENT_ID = "86c4b0b54c21320"
+    IMGUR_CLIENT_ID = "9902583ad9db49f"
     url = "https://api.imgur.com/3/upload"
     headers = {"Authorization": f"Client-ID {IMGUR_CLIENT_ID}"}
     with open(image_path, "rb") as img_file:
