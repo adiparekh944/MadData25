@@ -191,6 +191,18 @@ def get_address_price():
     else:
         return jsonify({"status": "fail", "message": "Address not found"}), 404
 
+# Endpoint to handle a single image for processing and search
+@app.route('/process_image', methods=['POST'])
+def process_single_image():
+    req_data = request.get_json()
+    if not req_data or 'base64_image' not in req_data:
+        return jsonify({"status": "fail", "message": "Missing 'base64_image' parameter"}), 400
+
+    try:
+        detected_items = process_image(req_data['base64_image'], req_data.get('base_name', 'test'))
+        return jsonify(detected_items), 200
+    except Exception as e:
+        return jsonify({"status": "fail", "message": str(e)}), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)
