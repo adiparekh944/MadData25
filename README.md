@@ -1,131 +1,92 @@
 
+<h1 align="center">ClaimReady: Smart Home Inventory & Valuation 📸🏠</h1>
 
-## ClaimReady — How It Works and How to Run It
-
-This document explains what ClaimReady does, the end‑to‑end flow a user goes through, the APIs involved, and how to run the app locally.
-
----
-
-## What is ClaimReady?
-ClaimReady streamlines insurance claim preparation by analyzing photos of damaged property and extracting items with estimated prices. Users can optionally provide an address to enrich results. The app then presents a structured list of detected items and costs to help users quickly assemble a claim.
+<p align="center">
+  Effortlessly turn photos and videos of your home into a secure, AI-powered digital inventory with intelligent valuations.
+</p>
 
 ---
 
-## User Journey
-1. Open the web app.
-2. Upload one or more photos of the damaged property.
-3. Optionally enter the property address.
-4. Submit the photos (and address if provided).
-5. The backend processes the images and returns detected items with estimated prices.
-6. The UI displays a table of detected items and any address‑based matches.
+## 🚀 Overview
+ClaimReady transforms your home photos and videos into a comprehensive digital inventory with accurate valuations. Whether for **insurance claims, moving, or organization**, ClaimReady makes documenting and valuing your belongings simple and fast.
 
 ---
 
-## System Flow (High Level)
-- Frontend (React): Handles image selection (multiple files), previews, and submission.
-- Backend (Flask API):
-  - Receives base64‑encoded images.
-  - Runs detection/valuation to produce a list of items with prices.
-  - Optionally processes the provided address to look up matching data.
-- Response is rendered in the UI as a table of items and any address‑specific additions.
+## ⚙️ How It Works
+1. **Smart Detection** – Upload photos or videos of your home. Our AI (YOLO v11) automatically detects belongings, saving hours of manual documentation.  
+2. **Intelligent Valuation** – Items are analyzed by **Google Gemini AI**, combining image understanding and market data for accurate replacement values.  
+3. **Multi-File Support** – Upload multiple images or videos at once for full coverage.  
+4. **Unified Results** – ClaimReady merges everything into a clean, organized digital inventory.  
+5. **Secure Storage** – Your data is safely stored with **Supabase**, always accessible and protected.  
 
 ---
 
-## API Overview
+## 🌟 Key Features
+### 📸 Photo & Video Upload
+- Multiple formats supported (JPG, PNG, MP4, MOV, etc.)  
+- Drag-and-drop interface  
+- Batch processing  
 
-### POST `/api/upload`
-Uploads the user’s images for detection/valuation.
+### 🤖 AI-Powered Detection
+- YOLO v11 object detection  
+- Automatic categorization & identification  
+- Deduplication to avoid overcounting  
 
-Request body (JSON):
-```json
-{
-  "name": "User's Upload",
-  "value": [
-    "data:image/jpeg;base64,/9j/4AAQSkZJRg...",
-    "data:image/png;base64,iVBORw0KGgoAAA..."
-  ]
-}
-```
+### 💰 Smart Valuation
+- Google Gemini AI price estimates  
+- Market-aware replacement values  
+- Condition & brand recognition  
 
-Typical response (JSON):
-```json
-{
-  "detected_items": [
-    { "title": "Sofa", "price": "$450" },
-    { "title": "Coffee Table", "price": "$120" }
-  ]
-}
-```
-
-Notes:
-- The frontend converts selected `File` objects to base64 strings before sending.
-- The UI will append each detected item to the results table.
-
-### POST `/api/address`
-Optionally enriches results using an address string.
-
-Request body (JSON):
-```json
-{ "address": "123 Main St, Springfield, USA" }
-```
-
-Typical behavior:
-- If the address matches known data, the UI prepends a line item (e.g., matched street with an associated price) to the table.
+### 📊 Comprehensive Results
+- Individual item details  
+- Total home inventory value  
+- Unified report from all uploads  
 
 ---
 
-## Frontend Behavior (Key Points)
-- Users can select multiple images. Each file is previewed in the UI.
-- On submit, the app:
-  - Converts all selected files to base64.
-  - Sends them to `/api/upload`.
-  - Optionally sends the address to `/api/address` if provided.
-  - Renders the combined results in a table.
+## ☑️ Problem We Solve
+Homeowners and renters struggle with:  
+- **Tedious documentation** of belongings  
+- **Insurance prep** without complete valuations  
+- **Moving & organization** logistics  
+- **Unknown replacement values** until it’s too late  
+
+ClaimReady automates the entire process—from detection to valuation—in minutes.
 
 ---
 
-## Run the Application
+## 🛠️ Tech Stack
+**Frontend**  
+- Next.js 14 (TypeScript)  
+- Tailwind CSS  
+- Framer Motion  
+- Custom Fonts (Black Future, Kumbh Sans)  
 
-### 1) Install Docker
-Ensure you have Docker Desktop installed and running.  
-[Get Docker Desktop](https://www.docker.com/products/docker-desktop/)
-
-### 2) Navigate to the project directory
-Open a terminal and `cd` into the repository root.
-
-### 3) Start services
-
-Development (auto‑rebuild on changes):
-```bash
-docker-compose -f docker-compose-build-run.yml up
-```
-
-Production‑style run (no rebuild on changes):
-```bash
-docker-compose -f docker-compose-run.yml up
-```
-
-### 4) Access the app
-- Frontend (React dev server): [`https://localhost:3000`](https://localhost:3000)
-- Backend (Flask API): [`https://localhost:8080`](https://localhost:8080)
-
-Note: If your environment uses different hosts/ports (e.g., a LAN IP or another port), update the frontend configuration/endpoints accordingly.
+**Backend**  
+- Python Flask API  
+- Ultralytics YOLO v11  
+- Google Gemini AI  
+- Supabase (data storage & auth)  
 
 ---
 
-## Troubleshooting
-- Ensure Docker Desktop is running before starting containers.
-- If containers fail to start or dependencies change, rebuild:
-```bash
-docker-compose -f docker-compose-build-run.yml up --build
-```
-- Verify that your browser trusts the local HTTPS certificates if accessing via `https://localhost`.
-- If the frontend cannot reach the API, confirm the API base URL and CORS settings match your environment.
+## ❤️ Why ClaimReady?
+- **Effortless** – Just upload photos/videos, get a full inventory  
+- **Accurate** – AI-powered detection + valuations  
+- **Scalable** – Works for small apartments to large homes  
+- **Secure** – Supabase-powered backend  
 
 ---
 
-## Notes for Developers
-- The upload flow expects base64‑encoded images in the `value` array.
-- The UI consumes `detected_items` where each item includes a `title` and `price` (e.g., `"$120"`).
-- If you change API schemas, update both the backend response and the frontend mapping logic accordingly.
+## 🗺️ Future Roadmap
+- 📱 Native iOS + Android apps  
+- 🏦 Direct insurance provider integrations  
+- 📊 Advanced analytics & insights  
+- 🎤 Voice assistant queries  
+- 📑 Export options (PDF, CSV, integrations)  
 
+---
+
+<p align="center">
+  <b>ClaimReady</b> – Making home inventory effortless, accurate, and secure. 🏠✨
+</p>
