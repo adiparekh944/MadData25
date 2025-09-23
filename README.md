@@ -1,63 +1,131 @@
 
 
-## 📖 README.md - Instructions for Running ClaimReady
+## ClaimReady — How It Works and How to Run It
 
-## 🚀 Running the Application
-
-To run the application, follow these steps:
+This document explains what ClaimReady does, the end‑to‑end flow a user goes through, the APIs involved, and how to run the app locally.
 
 ---
 
-### **Step 1: Install Docker**
-Ensure you have **Docker** installed on your machine.  
-- [Download Docker here](https://www.docker.com/products/docker-desktop/)  
-- Follow the installation instructions for your operating system.
+## What is ClaimReady?
+ClaimReady streamlines insurance claim preparation by analyzing photos of damaged property and extracting items with estimated prices. Users can optionally provide an address to enrich results. The app then presents a structured list of detected items and costs to help users quickly assemble a claim.
 
 ---
 
-### **Step 2: Navigate to the Project Directory**
-1. Open your terminal.
-2. Navigate to the `MadData` directory:
+## User Journey
+1. Open the web app.
+2. Upload one or more photos of the damaged property.
+3. Optionally enter the property address.
+4. Submit the photos (and address if provided).
+5. The backend processes the images and returns detected items with estimated prices.
+6. The UI displays a table of detected items and any address‑based matches.
+
 ---
 
-### **Step 3: Run the Application**
-Depending on your goal, use one of the following commands:
+## System Flow (High Level)
+- Frontend (React): Handles image selection (multiple files), previews, and submission.
+- Backend (Flask API):
+  - Receives base64‑encoded images.
+  - Runs detection/valuation to produce a list of items with prices.
+  - Optionally processes the provided address to look up matching data.
+- Response is rendered in the UI as a table of items and any address‑specific additions.
 
-### ➤ **For Development (Auto-rebuild on Changes)**
-To run the application and automatically rebuild on file changes:
+---
 
+## API Overview
+
+### POST `/api/upload`
+Uploads the user’s images for detection/valuation.
+
+Request body (JSON):
+```json
+{
+  "name": "User's Upload",
+  "value": [
+    "data:image/jpeg;base64,/9j/4AAQSkZJRg...",
+    "data:image/png;base64,iVBORw0KGgoAAA..."
+  ]
+}
+```
+
+Typical response (JSON):
+```json
+{
+  "detected_items": [
+    { "title": "Sofa", "price": "$450" },
+    { "title": "Coffee Table", "price": "$120" }
+  ]
+}
+```
+
+Notes:
+- The frontend converts selected `File` objects to base64 strings before sending.
+- The UI will append each detected item to the results table.
+
+### POST `/api/address`
+Optionally enriches results using an address string.
+
+Request body (JSON):
+```json
+{ "address": "123 Main St, Springfield, USA" }
+```
+
+Typical behavior:
+- If the address matches known data, the UI prepends a line item (e.g., matched street with an associated price) to the table.
+
+---
+
+## Frontend Behavior (Key Points)
+- Users can select multiple images. Each file is previewed in the UI.
+- On submit, the app:
+  - Converts all selected files to base64.
+  - Sends them to `/api/upload`.
+  - Optionally sends the address to `/api/address` if provided.
+  - Renders the combined results in a table.
+
+---
+
+## Run the Application
+
+### 1) Install Docker
+Ensure you have Docker Desktop installed and running.  
+[Get Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+### 2) Navigate to the project directory
+Open a terminal and `cd` into the repository root.
+
+### 3) Start services
+
+Development (auto‑rebuild on changes):
 ```bash
 docker-compose -f docker-compose-build-run.yml up
 ```
 
-### ➤ **For Deployment (Production Mode)**
-To run the application without rebuilding on file changes:
-
+Production‑style run (no rebuild on changes):
 ```bash
 docker-compose -f docker-compose-run.yml up
 ```
 
----
+### 4) Access the app
+- Frontend (React dev server): [`https://localhost:3000`](https://localhost:3000)
+- Backend (Flask API): [`https://localhost:8080`](https://localhost:8080)
 
-### **Step 4: Access the Application**
-✅ **React Development Server:**  
-- URL: [https://localhost:3000](https://localhost:3000)  
-- Visit this URL after running one of the above commands to view the application.
-
-✅ **Flask REST API (For Endpoint Testing):**  
-- URL: [https://localhost:8080](https://localhost:8080)  
-- This endpoint allows you to interact with the backend API.
+Note: If your environment uses different hosts/ports (e.g., a LAN IP or another port), update the frontend configuration/endpoints accordingly.
 
 ---
 
-### ⚠️ **Troubleshooting**
-If you encounter issues:
-- Ensure Docker is running. (docker desktop application always has to be running)
-- If there are dependency issues, try rebuilding the containers:
-
+## Troubleshooting
+- Ensure Docker Desktop is running before starting containers.
+- If containers fail to start or dependencies change, rebuild:
 ```bash
 docker-compose -f docker-compose-build-run.yml up --build
 ```
+- Verify that your browser trusts the local HTTPS certificates if accessing via `https://localhost`.
+- If the frontend cannot reach the API, confirm the API base URL and CORS settings match your environment.
 
 ---
+
+## Notes for Developers
+- The upload flow expects base64‑encoded images in the `value` array.
+- The UI consumes `detected_items` where each item includes a `title` and `price` (e.g., `"$120"`).
+- If you change API schemas, update both the backend response and the frontend mapping logic accordingly.
 
