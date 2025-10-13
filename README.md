@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="logowhite.png" alt="ClaimReady Logo" width="250"/>
+</p>
 
 <h1 align="center">ClaimReady: Smart Home Inventory & Valuation 📸🏠</h1>
 
